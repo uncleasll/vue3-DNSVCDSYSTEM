@@ -1,5 +1,5 @@
 <template>
-  <div class="grid h-[calc(100vh-32px)] min-h-0 grid-cols-[minmax(320px,360px)_minmax(0,1fr)_200px] grid-rows-[82px_minmax(0,1fr)] gap-3 overflow-hidden">
+  <div class="grid h-[calc(100vh-32px)] min-h-0 grid-cols-[minmax(320px,360px)_minmax(0,1fr)_260px] grid-rows-[82px_minmax(0,1fr)] gap-3 overflow-hidden">
     
     <div class="row-span-2 min-h-0">
       <FloorPlan :targetPanelIds="viewerPanelIds" />

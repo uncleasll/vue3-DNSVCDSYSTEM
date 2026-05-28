@@ -1,35 +1,35 @@
 <template>
   <ModalShell :onClose="onClose" class-name="max-w-lg">
-    <form class="overflow-y-auto p-8" @submit.prevent="submit">
+    <form class="overflow-y-auto bg-slate-50 p-8" @submit.prevent="submit">
       <div class="mb-6 text-center">
         <h2 class="text-2xl font-bold">조작 등록</h2>
         <div class="mt-1 text-sm font-semibold text-slate-500">조작등록</div>
-        <div class="mx-auto mt-3 h-px w-72 bg-slate-200" />
+        <div class="mx-auto mt-3 h-1 w-28 rounded-full bg-blue-600" />
       </div>
 
-      <label class="mb-4 block">
+      <label class="mb-4 block rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <span class="mb-2 block text-sm font-semibold">작업 부서 <b class="text-red-500">*</b></span>
-        <select v-model="department" class="h-12 w-full rounded-lg border border-slate-300 px-4 text-slate-600 outline-none focus:border-blue-500">
+        <select v-model="department" class="h-12 w-full rounded-lg border-2 border-blue-200 bg-blue-50 px-4 text-sm font-black text-slate-950 shadow-sm outline-none transition focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100">
           <option v-for="team in MOCK_TEAMS" :key="team" :value="team">{{ team }}</option>
         </select>
       </label>
 
-      <label class="mb-4 block">
+      <label class="mb-4 block rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <span class="mb-2 block text-sm font-semibold">작업요청사유 <b class="text-red-500">*</b></span>
-        <select v-model="reason" class="h-12 w-full rounded-lg border border-slate-300 px-4 text-slate-600 outline-none focus:border-blue-500">
+        <select v-model="reason" class="h-12 w-full rounded-lg border-2 border-blue-200 bg-blue-50 px-4 text-sm font-black text-slate-950 shadow-sm outline-none transition focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100">
           <option v-for="item in MOCK_REASONS" :key="item" :value="item">{{ item }}</option>
         </select>
       </label>
 
-      <div>
+      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div class="mb-3 text-sm font-semibold">차단기 선택 <b class="text-red-500">*</b></div>
         <div class="grid grid-cols-2 gap-3">
-          <button type="button" @click="scanOpen = true" class="flex h-12 items-center justify-center gap-2 rounded-lg border border-blue-500 bg-blue-50 font-semibold text-blue-600 transition hover:bg-blue-100">
+          <button type="button" @click="scanOpen = true" class="flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-blue-600 bg-white font-black text-blue-700 shadow-sm transition hover:bg-blue-50">
             <QrCodeIcon class="h-5 w-5" />QR 스캔
           </button>
           <button type="button" @click="openSearch" :class="[
-            'flex h-12 items-center justify-center gap-2 rounded-lg border font-semibold transition',
-            searchOpen ? 'border-blue-500 bg-blue-600 text-white shadow-md' : 'border-slate-300 text-slate-700 hover:border-blue-300 hover:bg-blue-50'
+            'flex h-12 items-center justify-center gap-2 rounded-lg border-2 font-black shadow-sm transition',
+            searchOpen ? 'border-blue-700 bg-blue-600 text-white shadow-md' : 'border-slate-300 bg-white text-slate-800 hover:border-blue-400 hover:bg-blue-50'
           ]">
             <SearchIcon class="h-5 w-5" />검색
           </button>
@@ -41,21 +41,21 @@
         ]">
           <div class="relative min-h-0 overflow-hidden">
             <SearchIcon class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-            <input ref="searchRef" v-model="query" placeholder="Unit ID or equipment name..." class="h-12 w-full rounded-lg border border-slate-300 bg-white pl-12 pr-4 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100" />
+            <input ref="searchRef" v-model="query" placeholder="Unit ID or equipment name..." class="h-12 w-full rounded-lg border-2 border-blue-200 bg-blue-50 pl-12 pr-4 text-sm font-black text-slate-950 shadow-sm outline-none transition placeholder:text-slate-500 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100" />
           </div>
           
           <div class="mt-3 max-h-52 min-h-0 overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-sm">
             <table class="w-full text-left text-xs">
-              <thead class="sticky top-0 bg-slate-50 text-slate-700">
+              <thead class="sticky top-0 bg-blue-50 text-slate-700">
                 <tr>
                   <th v-for="head in ['기기번호', '키상태', '작업상태', '상세']" :key="head" class="px-3 py-2">{{ head }}</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="unit in matches" :key="unit.id" class="border-t border-slate-100 transition hover:bg-blue-50/50">
+                <tr v-for="unit in matches" :key="unit.id" class="border-t border-slate-100 transition hover:bg-blue-50/80">
                   <td class="px-3 py-2 font-black">
                     <label class="flex items-center gap-2">
-                      <input type="checkbox" :checked="selectedUnitIds.includes(unit.unitId)" @change="toggleUnit(unit.unitId)" />
+                      <input type="checkbox" :checked="selectedUnitIds.includes(unit.unitId)" @change="toggleUnit(unit.unitId)" class="h-4 w-4 rounded border-slate-300 accent-blue-600" />
                       {{ unit.unitId }}
                     </label>
                   </td>
@@ -79,7 +79,12 @@
         </div>
       </div>
 
-      <button type="submit" :disabled="selectedUnitIds.length === 0 || submitting" class="mt-6 h-12 w-full rounded-lg bg-blue-600 text-lg font-bold text-white shadow-md hover:bg-blue-700 disabled:bg-slate-300">
+      <button
+        type="submit"
+        :disabled="selectedUnitIds.length === 0 || submitting"
+        class="mt-6 h-12 w-full rounded-lg border-2 text-lg font-black shadow-lg transition disabled:shadow-none"
+        :class="selectedUnitIds.length === 0 || submitting ? 'border-slate-300 bg-slate-200 text-slate-500' : 'border-blue-700 bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700'"
+      >
         {{ submitting ? '등록 중...' : '조작 등록' }}
       </button>
     </form>

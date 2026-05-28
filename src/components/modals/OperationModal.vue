@@ -1,87 +1,102 @@
 <template>
   <ModalShell :onClose="onClose" class-name="max-w-5xl">
-    <!-- Header Section -->
-    <div class="shrink-0 border-b border-slate-200 p-6">
+    <div class="shrink-0 border-b border-slate-200 bg-slate-50 p-6">
       <div class="flex items-center gap-4">
-        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-blue-200 bg-blue-100 text-blue-600 shadow-sm">
           <PlayIcon v-if="isStart" class="h-6 w-6" />
           <CheckIcon v-else class="h-7 w-7" />
         </div>
         <div>
-          <h2 class="text-2xl font-black">{{ isStart ? '조작 시작' : '조작 완료' }}</h2>
+          <h2 class="text-2xl font-black text-slate-950">{{ isStart ? '조작 시작' : '조작 완료' }}</h2>
           <div class="text-sm font-bold text-slate-500">{{ isStart ? '조작시작' : '조작완료' }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Main Content Section -->
-    <div class="grid min-h-0 flex-1 grid-cols-[1.1fr_1fr_1fr] gap-6 overflow-hidden p-6">
-      <!-- Left Section: Operation List -->
-      <section class="min-h-0">
+    <div class="grid min-h-0 flex-1 grid-cols-[1.1fr_1fr_1fr] gap-6 overflow-hidden bg-slate-50 p-6">
+      <section class="min-h-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="font-bold">{{ isStart ? '조작 내역' : '진행중 목록' }}</h3>
-          <span class="text-sm font-bold text-blue-600">{{ selectedItems.length }}/{{ list.length }} 선택</span>
+          <h3 class="font-black text-slate-950">{{ isStart ? '조작 내역' : '진행중 목록' }}</h3>
+          <span class="text-sm font-black text-blue-600">{{ selectedItems.length }}/{{ list.length }} 선택</span>
         </div>
-        
+
         <div class="max-h-[420px] space-y-2 overflow-y-auto pr-1">
-          <button 
-            v-for="item in list" 
-            :key="item.id" 
-            type="button" 
-            @click="toggleSelected(item.id)" 
+          <button
+            v-for="item in list"
+            :key="item.id"
+            type="button"
             :class="[
-              'flex w-full items-center gap-3 rounded-lg border p-3 text-left shadow-sm',
-              selectedIds.includes(item.id) ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white'
+              'flex w-full items-center gap-3 rounded-lg border-2 p-3 text-left shadow-sm transition',
+              selectedIds.includes(item.id)
+                ? 'border-blue-600 bg-blue-50 shadow-[0_0_0_3px_rgba(37,99,235,0.18)]'
+                : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40',
             ]"
+            @click="toggleSelected(item.id)"
           >
-            <input 
-              type="checkbox" 
-              :checked="selectedIds.includes(item.id)" 
-              @change="toggleSelected(item.id)" 
+            <input
+              type="checkbox"
+              :checked="selectedIds.includes(item.id)"
+              class="h-5 w-5 rounded border-slate-300 accent-blue-600"
               @click.stop
-              class="h-5 w-5 rounded border-slate-300 text-blue-600" 
+              @change="toggleSelected(item.id)"
             />
             <div class="min-w-0 flex-1">
-              <div class="font-black">{{ item.unitId }}</div>
-              <div class="text-xs font-semibold text-slate-500">{{ item.equipName }}</div>
+              <div class="truncate text-lg font-black text-slate-950">{{ item.unitId }}</div>
+              <div class="truncate text-xs font-bold text-slate-500">{{ item.equipName }}</div>
             </div>
             <StatusBadge :status="item.opType.replace(' ', '_')" :blink="item.opType === 'KEY ALERT'" />
           </button>
         </div>
       </section>
 
-      <!-- Center Section: Information Selection inputs -->
-      <section class="border-x border-slate-200 px-6">
-        <h3 class="mb-5 font-bold">정보 입력</h3>
-        <SelectComponent label="팀 선택" :value="team" @change="setTeam" :options="MOCK_TEAMS" />
-        <SelectComponent label="책임자" :value="supervisor" @change="setSupervisor" :options="teamInfo.supervisors" />
-        <SelectComponent label="작업자" :value="worker" @change="setWorker" :options="teamInfo.workers" />
+      <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h3 class="mb-5 font-black text-slate-950">정보 입력</h3>
+
+        <label class="mb-5 block rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <span class="mb-2 block text-sm font-black text-slate-800">팀 선택 <b class="text-red-500">*</b></span>
+          <select v-model="team" class="h-12 w-full rounded-lg border-2 border-blue-200 bg-blue-50 px-4 text-sm font-black text-slate-950 shadow-sm outline-none transition focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100" @change="setTeam(team)">
+            <option v-for="option in MOCK_TEAMS" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </label>
+
+        <label class="mb-5 block rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <span class="mb-2 block text-sm font-black text-slate-800">책임자 <b class="text-red-500">*</b></span>
+          <select v-model="supervisor" class="h-12 w-full rounded-lg border-2 border-blue-200 bg-blue-50 px-4 text-sm font-black text-slate-950 shadow-sm outline-none transition focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100">
+            <option v-for="option in teamInfo.supervisors" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </label>
+
+        <label class="block rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <span class="mb-2 block text-sm font-black text-slate-800">작업자 <b class="text-red-500">*</b></span>
+          <select v-model="worker" class="h-12 w-full rounded-lg border-2 border-blue-200 bg-blue-50 px-4 text-sm font-black text-slate-950 shadow-sm outline-none transition focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100">
+            <option v-for="option in teamInfo.workers" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </label>
       </section>
 
-      <!-- Right Section: Summary Information panel -->
-      <section>
-        <h3 class="mb-5 font-bold">확인 정보</h3>
-        <div class="rounded-xl border border-blue-200 bg-white p-4 shadow-sm">
-          <InfoComponent :icon="UsersIcon" label="팀" :value="team" />
-          <InfoComponent :icon="UserIcon" label="책임자" :value="supervisor" />
-          <InfoComponent :icon="WrenchIcon" label="작업자" :value="worker" />
-          <InfoComponent 
-            :icon="CheckIcon" 
-            :label="isStart ? '조작대상' : '대상'" 
-            :value="selectedItems.length > 1 ? `${selectedItems.length}개 선택` : active?.unitId ?? '-'" 
-            :sub="selectedItems.map((item) => item.unitId).join(', ') || active?.equipName" 
+      <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h3 class="mb-5 font-black text-slate-950">확인 정보</h3>
+        <div class="rounded-xl border-2 border-blue-200 bg-blue-50/60 p-4 shadow-sm">
+          <InfoRow :icon="UsersIcon" label="팀" :value="team" />
+          <InfoRow :icon="UserIcon" label="책임자" :value="supervisor" />
+          <InfoRow :icon="WrenchIcon" label="작업자" :value="worker" />
+          <InfoRow
+            :icon="CheckIcon"
+            :label="isStart ? '조작대상' : '대상'"
+            :value="selectedItems.length > 1 ? `${selectedItems.length}개 선택` : active?.unitId ?? '-'"
+            :sub="selectedItems.map((item) => item.unitId).join(', ') || active?.equipName"
+            last
           />
         </div>
       </section>
     </div>
 
-    <!-- Footer Action Buttons -->
-    <div class="flex shrink-0 justify-end border-t border-slate-200 p-5">
-      <button 
-        type="button" 
-        :disabled="selectedItems.length === 0" 
-        @click="confirm" 
-        class="flex h-14 w-64 items-center justify-center gap-3 rounded-lg bg-blue-600 text-lg font-bold text-white shadow-lg hover:bg-blue-700 disabled:bg-slate-300"
+    <div class="flex shrink-0 justify-end border-t border-slate-200 bg-white p-5">
+      <button
+        type="button"
+        :disabled="selectedItems.length === 0"
+        class="flex h-14 w-64 items-center justify-center gap-3 rounded-lg border-2 border-blue-700 bg-blue-600 text-lg font-black text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 disabled:border-slate-300 disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+        @click="confirm"
       >
         <PlayIcon v-if="isStart" class="h-6 w-6" />
         <CheckIcon v-else class="h-6 w-6" />
@@ -92,14 +107,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, defineComponent, h, ref, type Component } from 'vue'
 import { Check as CheckIcon, Play as PlayIcon, User as UserIcon, Users as UsersIcon, Wrench as WrenchIcon } from 'lucide-vue-next'
 import { MOCK_KEY_STATUS, MOCK_TEAMS, TEAM_DATA } from '../../data/mockData'
 import type { Operation } from '../../types'
 import StatusBadge from '../ui/StatusBadge.vue'
 import ModalShell from './ModalShell.vue'
 
-// ===== PROPS DEFINITION =====
 interface Props {
   mode: 'start' | 'complete'
   operations?: Operation[]
@@ -111,10 +125,34 @@ const props = withDefaults(defineProps<Props>(), {
   operations: () => [],
 })
 
-// ===== UTILITY FUNCTIONS =====
-const isProgress = (status: string) => status === '진행중' || status === 'м§„н–‰м¤‘'
+const InfoRow = defineComponent({
+  props: {
+    icon: { type: Object as () => Component, required: true },
+    label: { type: String, required: true },
+    value: { type: String, required: true },
+    sub: { type: String, default: '' },
+    last: { type: Boolean, default: false },
+  },
+  setup(rowProps) {
+    return () => h('div', {
+      class: [
+        'flex items-center gap-4 py-4',
+        rowProps.last ? '' : 'border-b border-blue-100',
+      ],
+    }, [
+      h('div', { class: 'flex h-10 w-10 items-center justify-center rounded-lg bg-white text-blue-600 shadow-sm' }, [
+        h(rowProps.icon, { class: 'h-5 w-5' }),
+      ]),
+      h('div', { class: 'text-sm font-bold text-slate-500' }, rowProps.label),
+      h('div', { class: 'ml-auto min-w-0 text-right text-base font-black text-slate-950' }, [
+        h('div', { class: 'truncate' }, rowProps.value),
+        rowProps.sub ? h('div', { class: 'max-w-40 truncate text-sm font-semibold text-slate-500' }, rowProps.sub) : null,
+      ]),
+    ])
+  },
+})
 
-// ===== COMPUTED PROPERTIES (useMemo Alternative) =====
+const isProgress = (status: string) => status === '진행중' || status === 'м§„н–‰м¤‘' || status === 'РјВ§вЂћРЅвЂ“вЂ°РјВ¤вЂ'
 const isStart = computed(() => props.mode === 'start')
 
 const list = computed<Operation[]>(() => {
@@ -136,29 +174,24 @@ const list = computed<Operation[]>(() => {
   } as Operation))
 })
 
-// ===== STATE MANAGEMENT =====
 const selectedIds = ref<number[]>(
-  isStart.value 
-    ? list.value.slice(0, 2).map((item) => item.id) 
-    : [list.value[0]?.id ?? 0].filter(Boolean)
+  isStart.value
+    ? list.value.slice(0, 2).map((item) => item.id)
+    : [list.value[0]?.id ?? 0].filter(Boolean),
 )
 
 const team = ref(MOCK_TEAMS[0])
 const teamInfo = computed(() => TEAM_DATA[team.value])
-
 const supervisor = ref(teamInfo.value.supervisors[0])
 const worker = ref(teamInfo.value.workers[0])
 
 const active = computed(() => list.value.find((item) => selectedIds.value.includes(item.id)) ?? list.value[0])
 const selectedItems = computed(() => list.value.filter((item) => selectedIds.value.includes(item.id)))
 
-// ===== METHODS / MUTATIONS =====
 const toggleSelected = (id: number) => {
-  if (selectedIds.value.includes(id)) {
-    selectedIds.value = selectedIds.value.filter((item) => item !== id)
-  } else {
-    selectedIds.value = [...selectedIds.value, id]
-  }
+  selectedIds.value = selectedIds.value.includes(id)
+    ? selectedIds.value.filter((item) => item !== id)
+    : [...selectedIds.value, id]
 }
 
 const setTeam = (nextTeam: string) => {
@@ -167,70 +200,8 @@ const setTeam = (nextTeam: string) => {
   worker.value = TEAM_DATA[nextTeam].workers[0]
 }
 
-const setSupervisor = (val: string) => {
-  supervisor.value = val
-}
-
-const setWorker = (val: string) => {
-  worker.value = val
-}
-
 const confirm = async () => {
   await props.onConfirm?.(selectedItems.value, worker.value, team.value)
   props.onClose()
-}
-</script>
-
-<!-- ===== SUB-COMPONENTS DECLARED LOCALLY ===== -->
-<script lang="ts">
-import { defineComponent, type Component } from 'vue'
-
-// Local Select Component mapping identical styles and actions
-const SelectComponent = defineComponent({
-  name: 'SelectComponent',
-  props: {
-    label: { type: String, required: true },
-    value: { type: String, required: true },
-    options: { type: Array as () => string[], required: true }
-  },
-  emits: ['change'],
-  template: `
-    <label class="mb-5 block">
-      <span class="mb-2 block text-sm font-bold">{{ label }} <b class="text-red-500">*</b></span>
-      <select :value="value" @change="$emit('change', ($event.target as HTMLSelectElement).value)" class="h-12 w-full rounded-lg border border-slate-300 px-4 text-base font-semibold outline-none focus:border-blue-500">
-        <option v-for="option in options" :key="option">{{ option }}</option>
-      </select>
-    </label>
-  `
-})
-
-// Local Info Display Row Component replicating layout layout constraints
-const InfoComponent = defineComponent({
-  name: 'InfoComponent',
-  props: {
-    icon: { type: Object as () => Component, required: true },
-    label: { type: String, required: true },
-    value: { type: String, required: true },
-    sub: { type: String, default: '' }
-  },
-  template: `
-    <div class="flex items-center gap-4 border-b border-slate-200 py-4 last:border-b-0">
-      <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-        <component :is="icon" class="h-5 w-5" />
-      </div>
-      <div class="text-sm font-bold text-slate-500">{{ label }}</div>
-      <div class="ml-auto text-right text-base font-black">
-        {{ value }}
-        <div v-if="sub" class="text-sm font-semibold text-slate-500">{{ sub }}</div>
-      </div>
-    </div>
-  `
-})
-
-export default {
-  components: {
-    SelectComponent,
-    InfoComponent
-  }
 }
 </script>

@@ -1,23 +1,23 @@
 <template>
   <ModalShell :onClose="onClose" class-name="max-w-4xl">
-    <div class="shrink-0 border-b border-slate-200 p-6">
+    <div class="shrink-0 border-b border-slate-200 bg-slate-50 p-6">
       <h2 class="text-2xl font-black">이력 조회</h2>
       <div class="text-sm font-bold text-slate-500">이력조회</div>
     </div>
     
-    <div class="min-h-0 flex-1 p-6">
-      <div class="mb-5 flex items-center gap-4">
-        <select class="h-10 rounded-lg border border-slate-200 px-4 text-sm font-semibold">
+    <div class="min-h-0 flex-1 bg-slate-50 p-6">
+      <div class="mb-5 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <select class="h-11 rounded-lg border-2 border-blue-200 bg-blue-50 px-4 text-sm font-black text-slate-950 shadow-sm outline-none transition focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100">
           <option>전체 상태</option>
         </select>
-        <input type="date" class="h-10 rounded-lg border border-slate-200 px-4 text-sm font-semibold" />
+        <input type="date" class="h-11 rounded-lg border-2 border-blue-200 bg-blue-50 px-4 text-sm font-black text-slate-950 shadow-sm outline-none transition focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100" />
         <div class="ml-auto text-sm font-bold text-slate-500">{{ rows.length }}건</div>
       </div>
       
-      <div class="max-h-[calc(100vh-280px)] overflow-y-auto rounded-xl border border-slate-200">
+      <div class="max-h-[calc(100vh-280px)] overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table class="w-full text-left text-sm">
           <slot name="header">
-            <thead class="sticky top-0 bg-slate-50 text-xs text-slate-500">
+          <thead class="sticky top-0 bg-blue-50 text-xs text-slate-600">
               <tr>
                 <th v-for="head in headers" :key="head" class="px-5 py-3">
                   {{ head }}
@@ -46,8 +46,8 @@
       </div>
     </div>
     
-    <div class="flex shrink-0 justify-end border-t border-slate-200 p-5">
-      <button type="button" @click="onClose" class="h-12 w-32 rounded-lg bg-blue-600 font-bold text-white">
+    <div class="flex shrink-0 justify-end border-t border-slate-200 bg-white p-5">
+      <button type="button" @click="onClose" class="h-12 w-32 rounded-lg border-2 border-blue-700 bg-blue-600 font-black text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700">
         확인
       </button>
     </div>

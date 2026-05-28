@@ -1,5 +1,5 @@
 <template>
-  <ModalShell :onClose="onClose" class="max-w-4xl">
+  <ModalShell :onClose="onClose" class-name="max-w-4xl">
     <div class="shrink-0 border-b border-slate-200 p-6">
       <h2 class="text-2xl font-black">이력 조회</h2>
       <div class="text-sm font-bold text-slate-500">이력조회</div>

@@ -162,6 +162,10 @@ async function handleApi(req, res, url) {
 }
 
 function servePublic(req, res, url) {
+  if (url.searchParams.has('import')) {
+    return false
+  }
+
   const decodedPath = decodeURIComponent(url.pathname)
   const filePath = path.join(PUBLIC_DIR, decodedPath)
   if (!filePath.startsWith(PUBLIC_DIR) || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {

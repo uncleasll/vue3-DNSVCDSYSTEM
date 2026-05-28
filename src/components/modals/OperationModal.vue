@@ -1,5 +1,5 @@
 <template>
-  <ModalShell :onClose="onClose" class="max-w-5xl">
+  <ModalShell :onClose="onClose" class-name="max-w-5xl">
     <!-- Header Section -->
     <div class="shrink-0 border-b border-slate-200 p-6">
       <div class="flex items-center gap-4">

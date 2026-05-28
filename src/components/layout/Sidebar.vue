@@ -5,7 +5,7 @@
     <!-- KOEN Brand Header Section Area -->
     <div class="mb-8 flex h-14 items-center px-2">
       <img
-        src="/koen_logo.png"
+        :src="koenLogoUrl"
         alt="KOEN 한국남동발전 KOREA ENERGY"
         class="h-12 w-full object-contain object-left transition-transform duration-300 hover:scale-102"
       />
@@ -60,6 +60,8 @@ import {
   Home, 
   Settings 
 } from 'lucide-vue-next'
+
+const koenLogoUrl = '/koen_logo.png'
 
 // Menu Navigation Array definition layer
 const menuItems = [

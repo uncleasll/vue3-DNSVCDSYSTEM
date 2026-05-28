@@ -1,22 +1,24 @@
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-6">
+    
     <div class="relative h-[560px] w-[520px] overflow-hidden rounded-2xl bg-white shadow-2xl">
+      
       <button 
         type="button" 
-        @click="onClose" 
-        class="absolute right-5 top-5 z-10 rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+        @click="$emit('close')" 
+        class="absolute right-5 top-5 z-10 rounded-lg p-2 text-slate-500 hover:bg-slate-100 transition-colors"
       >
         <XIcon class="h-5 w-5" />
       </button>
 
       <span 
-        v-for="(particle, index) in confettiParticles" 
+        v-for="(_, index) in 16" 
         :key="index" 
         class="confetti-particle absolute h-2 w-2 rounded-sm" 
         :style="{
-          left: `${15 + (index * 5) % 70}%`,
-          top: `${20 + (index * 11) % 45}%`,
-          background: confettiColors[index % 4],
+          left: `${15 + (index * 5) % 70}%`, 
+          top: `${20 + (index * 11) % 45}%`, 
+          background: ['#10B981', '#3B82F6', '#60A5FA', '#14B8A6'][index % 4], 
           animationDelay: `${index * 0.12}s`
         }" 
       />
@@ -27,8 +29,12 @@
             <CheckIcon class="h-12 w-12" />
           </div>
         </div>
-        <div class="text-3xl font-black text-emerald-600">조작 등록 완료</div>
+        
+        <div class="text-3xl font-black text-emerald-600">
+          조작 등록 완료
+        </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -37,30 +43,24 @@
 import { onMounted, onUnmounted } from 'vue'
 import { Check as CheckIcon, X as XIcon } from 'lucide-vue-next'
 
-// ===== PROPS DEFINITION =====
-interface Props {
-  onClose: () => void
-}
-const props = defineProps<Props>()
+// Emits mapping context definition (Replaces direct onClose closure callback)
+const emit = defineEmits<{
+  (e: 'close'): void
+}>()
 
-// ===== STATIC CONSTANTS CONFIGURATION =====
-const confettiParticles = Array.from({ length: 16 })
-const confettiColors = ['#10B981', '#3B82F6', '#60A5FA', '#14B8A6']
+// Timer configuration management variables
+let autoCloseTimer: number | null = null
 
-// ===== TIMEOUT AUTOMATION LIFECYCLE =====
-let autoCloseTimer: ReturnType<typeof setTimeout> | null = null
-
-// Handles the automatic closing schedule cleanly matching identical functional criteria
+// Lifecycle Hooks handling exact mirror logic of React's useEffect setup
 onMounted(() => {
-  autoCloseTimer = setTimeout(() => {
-    props.onClose()
+  autoCloseTimer = window.setTimeout(() => {
+    emit('close')
   }, 2500)
 })
 
-// Ensures memory buffers release handlers seamlessly during context unmounting procedures
 onUnmounted(() => {
   if (autoCloseTimer) {
-    clearTimeout(autoCloseTimer)
+    window.clearTimeout(autoCloseTimer)
   }
 })
 </script>

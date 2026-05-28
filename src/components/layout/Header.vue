@@ -37,7 +37,6 @@
     </div>
 
     <button 
-      v-if="hasRegisterListener" 
       type="button" 
       @click="emit('register')" 
       class="h-full min-w-36 rounded-lg bg-blue-600 px-8 text-sm font-black text-white shadow-sm transition hover:bg-blue-700 active:scale-95"

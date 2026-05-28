@@ -78,7 +78,7 @@
       </div>
     </main>
 
-    <aside class="grid min-h-0 min-w-0 grid-rows-[minmax(0,1fr)_52px_52px_52px_52px] gap-2 overflow-hidden">
+    <aside class="grid min-h-0 min-w-0 grid-rows-[minmax(120px,1fr)_52px_52px_52px_52px] gap-2 overflow-hidden">
       <StatusPanel :operations="activeOperations" />
       <ActionButton :icon="PlusCircle" label="조작등록" variant="blue" @click="modal = 'register'" />
       <ActionButton :icon="Play" label="조작시작" variant="dark" @click="modal = 'start'" />

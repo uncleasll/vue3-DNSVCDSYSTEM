@@ -1,5 +1,5 @@
 <template>
-  <div class="grid h-[calc(100vh-32px)] min-h-0 grid-cols-[minmax(320px,360px)_minmax(0,1fr)_260px] grid-rows-[82px_minmax(0,1fr)] gap-3 overflow-hidden">
+  <div class="grid h-[calc(100vh-32px)] min-h-0 grid-cols-[minmax(320px,360px)_minmax(0,1fr)_200px] grid-rows-[82px_minmax(0,1fr)] gap-3 overflow-hidden">
     
     <div class="row-span-2 min-h-0">
       <FloorPlan :targetPanelIds="viewerPanelIds" />
@@ -14,7 +14,7 @@
         <div 
           v-for="panel in activePanels" 
           :key="panel.id" 
-          class="flex max-w-xl items-center gap-2 rounded-md border border-red-800/60 bg-red-950/90 px-2.5 py-1 text-[11px] font-bold text-red-200 shadow-lg"
+          class="flex max-w-xl items-center gap-2 rounded-md border border-red-800/60 bg-red-950/90 px-2.5 py-xq1 text-[11px] font-bold text-red-200 shadow-lg"
         >
           <span class="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.25)]" />
           <span class="font-mono">{{ panel.description || String(panel.id).padStart(2, '0') }}</span>

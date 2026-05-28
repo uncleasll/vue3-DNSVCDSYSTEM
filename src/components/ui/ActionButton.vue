@@ -3,8 +3,19 @@
     type="button"
     @click="emit('click')"
     :class="[
-      'flex h-full min-h-12 w-full items-center justify-center gap-2 rounded-xl border text-sm font-bold shadow-sm transition hover:shadow-md active:scale-[0.98]',
-      variantClasses[variant]
+      'flex h-full min-h-12 w-full items-center justify-center gap-2 rounded-xl border text-sm font-bold shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]',
+      
+      // REGISTER BUTTON (Ko'k) — Qat'iy tekshiruv
+      variant === 'blue' ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700' : '',
+      
+      // START BUTTON (Qora / To'q) — Qat'iy tekshiruv
+      variant === 'dark' ? 'bg-slate-950 text-white border-slate-950 hover:bg-slate-900' : '',
+      
+      // COMPLETE BUTTON (Mayin yashil) — Qat'iy tekshiruv
+      variant === 'green' ? 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100/70' : '',
+      
+      // HISTORY BUTTON (Mayin sarg'ish) — Qat'iy tekshiruv
+      variant === 'orange' ? 'bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-100/70' : ''
     ]"
   >
     <component :is="icon" class="h-5 w-5" />
@@ -29,12 +40,4 @@ defineProps<Props>()
 const emit = defineEmits<{
   (e: 'click'): void
 }>()
-
-// Dynamic Tailwind CSS utility class mappings managed by variant state
-const variantClasses: Record<Props['variant'], string> = {
-  dark: 'bg-slate-950 text-white border-slate-950 hover:bg-slate-900',
-  blue: 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700',
-  green: 'bg-white text-emerald-600 border-slate-200 hover:bg-slate-50',
-  orange: 'bg-white text-amber-500 border-slate-200 hover:bg-slate-50',
-}
 </script>

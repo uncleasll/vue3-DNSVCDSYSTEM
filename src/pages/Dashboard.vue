@@ -97,7 +97,6 @@
 
 <script setup lang="ts">
 import { ref, computed, markRaw, onMounted, onUnmounted } from 'vue'
-// CRITICAL FIX: Ensure icons are imported from 'lucide-vue-next' to avoid runtime canvas failure
 import { Bell, CheckCircle, History as HistoryIcon, Play, PlusCircle, Radio, Server, ShieldCheck } from 'lucide-vue-next'
 
 // API Network Core Hooks and Endpoint Interfaces
@@ -244,7 +243,7 @@ const alertCount = computed(() => {
 
 const viewerPanelIds = computed(() => sequencePanelIds.value)
 
-// CRITICAL FIX: Wrap Lucide components with markRaw() to eliminate the "resolveComponent" warning runtime loop
+// FIX: Ikonka obyektlari Vue Proxy kuzatuviga tushib resolveComponent xatosini bermasligi uchun ularga markRaw() to'liq va to'g'ri o'rnatildi
 const communicationStats = computed(() => [
   { icon: markRaw(Radio), label: 'GENi 연동', value: 'ON', color: 'text-emerald-600', bg: 'bg-emerald-50' },
   { icon: markRaw(ShieldCheck), label: '키보관함 연동', value: 'ON', color: 'text-blue-600', bg: 'bg-blue-50' },

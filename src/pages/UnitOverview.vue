@@ -1,5 +1,5 @@
 <template>
-  <Header section="UNIT OVERVIEW" :alarmCount="3" />
+  <Header section="UNIT OVERVIEW" :alarmCount="3" :showConnectionStatus="false" />
   
   <div class="flex h-[calc(100vh-104px)] min-h-0 flex-col gap-4 overflow-hidden">
     

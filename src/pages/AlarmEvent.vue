@@ -1,5 +1,5 @@
 <template>
-  <Header section="ALARM & EVENT" :alarmCount="3" />
+  <Header section="ALARM & EVENT" :alarmCount="3" :showConnectionStatus="false" />
 
   <div class="grid h-[calc(100vh-104px)] min-h-0 grid-rows-[96px_56px_minmax(0,1fr)] gap-4 overflow-hidden">
     

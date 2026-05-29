@@ -1,5 +1,5 @@
 <template>
-  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[minmax(320px,1fr)_132px_164px_auto] items-stretch gap-3']">
+  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[minmax(320px,1fr)_132px_164px] items-stretch gap-3']">
     
     <div class="flex min-w-0 flex-col items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-center shadow-sm">
       <div class="text-[10px] font-black uppercase tracking-wide text-blue-600">YEONGDONG POWER PLANT UNIT 1</div>
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="flex flex-col justify-center gap-1 rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
+    <div v-if="showConnectionStatus" class="flex flex-col justify-center gap-1 rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
       <div class="flex items-center justify-between gap-2 text-[11px] font-bold">
         <span class="flex items-center gap-1.5"><Zap class="h-3.5 w-3.5 text-blue-600" />GENi연동</span>
         <span class="text-emerald-600">ON</span>
@@ -36,18 +36,11 @@
       </div>
     </div>
 
-    <button 
-      type="button" 
-      @click="emit('register')" 
-      class="h-full min-w-36 rounded-lg bg-blue-600 px-8 text-sm font-black text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
-    >
-      조작등록
-    </button>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, getCurrentInstance } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Bell, Calendar, Clock, Zap } from 'lucide-vue-next'
 
 // Micro-compiler configuration setting defaults directly onto properties definitions
@@ -57,27 +50,20 @@ const props = withDefaults(
     section?: string
     alarmCount?: number
     flush?: boolean
+    showConnectionStatus?: boolean
   }>(),
   {
     title: '영동 1호기 고압차단기 위치안내시스템',
-    flush: false
+    flush: false,
+    showConnectionStatus: true
   }
 )
-
-// Macro configuration emitting context event hooks
-const emit = defineEmits<{
-  (e: 'register'): void
-}>()
 
 // React state variables replacement layers
 const time = ref('13:30:59')
 const dateStr = ref('2026.05.28')
 
 let timer: ReturnType<typeof setInterval> | undefined
-
-// Check if the parent template is listening to the '@register' action
-const instance = getCurrentInstance()
-const hasRegisterListener = instance?.vnode.props && (instance.vnode.props['onRegister'] || instance.vnode.props['on-register'])
 
 // Internal formatting scheduler pipe
 const updateDateTime = () => {

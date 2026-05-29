@@ -10,20 +10,9 @@
     </div>
     
     <main class="grid min-h-0 min-w-0 grid-rows-[minmax(180px,1fr)_238px] gap-3">
-      <div v-if="activePanels.length > 0" class="pointer-events-none absolute left-[380px] right-[220px] top-[118px] z-20 flex flex-col gap-1">
-        <div 
-          v-for="panel in activePanels" 
-          :key="panel.id" 
-          class="flex max-w-xl items-center gap-2 rounded-md border border-red-800/60 bg-red-950/90 px-2.5 py-xq1 text-[11px] font-bold text-red-200 shadow-lg"
-        >
-          <span class="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.25)]" />
-          <span class="font-mono">{{ panel.description || String(panel.id).padStart(2, '0') }}</span>
-          <span class="ml-auto rounded bg-emerald-950 px-1.5 py-0.5 text-[9px] text-emerald-400">{{ panel.status || 'ON' }}</span>
-        </div>
-      </div>
-
       <ImageViewer
         :activePanelIds="viewerPanelIds"
+        :alertPanels="activePanels"
         :sequenceId="sequenceId"
         :isOperationActive="isOperationActive"
         @sequenceDone="handleSequenceDone"
@@ -224,9 +213,6 @@ const finishOperations = async (selectedOperations: Operation[]) => {
 // Clears cached tracking segments cleanly upon visual loop sequence completion
 const handleSequenceDone = () => {
   sequencePanelIds.value = []
-  activePanels.value = []
-  lastActivePanelsSerialized.value = '[]'
-  void clearActivePanels()
 }
 
 // Computed Reactive Projection Filters

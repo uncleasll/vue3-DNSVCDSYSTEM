@@ -4,10 +4,6 @@
     <div v-if="isLoading" class="spinner-overlay">
       <div class="spinner-badge">Loading 3D</div>
     </div>
-    <div class="info-panel">
-      <p class="status">{{ moving ? 'Walking to panel...' : 'Use Arrow Keys to walk' }}</p>
-      <p class="coords">({{ camX }}, {{ camZ }})</p>
-    </div>
   </div>
 </template>
 
@@ -15,6 +11,8 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js'
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js'
 import gsap from 'gsap'
 import { PANEL_DATA as SHARED_PANEL_DATA } from '../../data/panels'
 
@@ -37,6 +35,12 @@ interface Placement {
 interface Arrow {
   position: [number, number, number]
   target: [number, number, number]
+}
+
+interface ArrowInstance {
+  group: THREE.Group
+  material: THREE.MeshBasicMaterial
+  index: number
 }
 
 interface Props {
@@ -78,7 +82,7 @@ const keys: Record<string, boolean> = {}
 const modelMap = new Map<GlbKey | 'floor' | 'ceiling', THREE.Group>()
 const boxMap = new Map<GlbKey | 'floor' | 'ceiling', THREE.Box3>()
 const overlayMaterials: Array<{ panelId: number; material: THREE.MeshBasicMaterial }> = []
-const arrowObjects: THREE.Object3D[] = []
+const arrowObjects: ArrowInstance[] = []
 
 let scene: THREE.Scene
 let camera: THREE.PerspectiveCamera
@@ -146,11 +150,12 @@ function getPlacements(): Placement[] {
 }
 
 function setupScene() {
+  RectAreaLightUniformsLib.init()
   scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x1e3a8a)
+  scene.background = new THREE.Color(0x0a0a0a)
 
   camera = new THREE.PerspectiveCamera(22, 1, 0.1, 1000)
-  camera.position.set(-6, 3.6, 0)
+  camera.position.set(-6, 4.0, 0)
   camera.lookAt(target)
 
   renderer = new THREE.WebGLRenderer({ canvas: canvasRef.value!, antialias: true })
@@ -165,6 +170,12 @@ function setupScene() {
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8)
   directionalLight.position.set(10, 15, 0)
   directionalLight.castShadow = true
+  directionalLight.shadow.mapSize.set(2048, 2048)
+  directionalLight.shadow.camera.far = 50
+  directionalLight.shadow.camera.left = -20
+  directionalLight.shadow.camera.right = 20
+  directionalLight.shadow.camera.top = 20
+  directionalLight.shadow.camera.bottom = -20
   scene.add(directionalLight)
 
   const pointLight1 = new THREE.PointLight(0xe2e8f0, 1.5)
@@ -181,6 +192,25 @@ function setupScene() {
   spotLight.penumbra = 1
   spotLight.castShadow = true
   scene.add(spotLight)
+
+  const rectLight1 = new THREE.RectAreaLight(0xf8fafc, 6, 20, 1)
+  rectLight1.position.set(10, 5.8, 0)
+  rectLight1.rotation.x = -Math.PI / 2
+  scene.add(rectLight1)
+
+  const rectLight2 = new THREE.RectAreaLight(0xf8fafc, 6, 20, 1)
+  rectLight2.position.set(30, 5.8, 0)
+  rectLight2.rotation.x = -Math.PI / 2
+  scene.add(rectLight2)
+
+  new HDRLoader().load('/textures/empty_warehouse_01_1k.hdr', (texture) => {
+    if (disposed) {
+      texture.dispose()
+      return
+    }
+    texture.mapping = THREE.EquirectangularReflectionMapping
+    scene.environment = texture
+  })
 }
 
 async function loadModel(key: GlbKey | 'floor' | 'ceiling') {
@@ -237,7 +267,7 @@ function addRoom() {
     scene.add(ceiling)
   }
 
-  const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.9, metalness: 0.1 })
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9, metalness: 0.1 })
   const walls = [
     { position: [10, 3, -5.2], rotation: [0, 0, 0], size: [50, 6] },
     { position: [10, 3, 5.2], rotation: [0, Math.PI, 0], size: [50, 6] },
@@ -249,8 +279,11 @@ function addRoom() {
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(wall.size[0], wall.size[1]), wallMat)
     mesh.position.set(wall.position[0], wall.position[1], wall.position[2])
     mesh.rotation.set(wall.rotation[0], wall.rotation[1], wall.rotation[2])
+    mesh.receiveShadow = true
     scene.add(mesh)
   })
+
+  addKoenDisplay()
 
   const lightMat = new THREE.MeshStandardMaterial({
     color: 0xf8fafc,
@@ -268,25 +301,126 @@ function addRoom() {
   }
 }
 
-function createLabelTexture(unitId: string, name: string) {
+function addKoenDisplay() {
+  const group = new THREE.Group()
+  group.position.set(35, 3.5, 0.05)
+  group.rotation.y = -Math.PI / 2
+
+  const frame = new THREE.Mesh(
+    new THREE.BoxGeometry(10, 4, 0.2),
+    new THREE.MeshStandardMaterial({ color: 0x020617, roughness: 0.7, metalness: 0.8 }),
+  )
+  group.add(frame)
+
+  const glow = new THREE.Mesh(
+    new THREE.PlaneGeometry(9.8, 3.8),
+    new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      emissive: 0x0ea5e9,
+      emissiveIntensity: 0.3,
+      roughness: 0.1,
+      metalness: 0.9,
+    }),
+  )
+  glow.position.z = 0.11
+  group.add(glow)
+
+  const screen = new THREE.Mesh(
+    new THREE.PlaneGeometry(9.6, 3.6),
+    new THREE.MeshStandardMaterial({ color: 0x020617, roughness: 0.4, metalness: 0.5 }),
+  )
+  screen.position.z = 0.12
+  group.add(screen)
+
   const canvas = document.createElement('canvas')
-  canvas.width = 2048
-  canvas.height = 1024
+  canvas.width = 1024
+  canvas.height = 512
   const ctx = canvas.getContext('2d')!
-  ctx.fillStyle = '#c2ccd5'
+  ctx.fillStyle = '#020617'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.font = 'italic 900 170px Arial'
+  ctx.fillStyle = '#ffffff'
+  ctx.shadowColor = '#38bdf8'
+  ctx.shadowBlur = 28
+  ctx.fillText('KOEN', 512, 220)
+  ctx.shadowBlur = 0
+  ctx.font = '700 54px Arial'
+  ctx.fillStyle = '#64748b'
+  ctx.fillText('한국남동발전', 512, 340)
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  const logo = new THREE.Mesh(
+    new THREE.PlaneGeometry(8.4, 3.2),
+    new THREE.MeshStandardMaterial({
+      map: texture,
+      transparent: true,
+      emissive: 0x38bdf8,
+      emissiveIntensity: 0.15,
+      roughness: 0.25,
+      metalness: 0.3,
+    }),
+  )
+  logo.position.z = 0.14
+  group.add(logo)
+
+  scene.add(group)
+}
+
+function createTextTexture(unitId: string, name: string) {
+  const canvas = document.createElement('canvas')
+  canvas.width = 1024
+  canvas.height = 512
+  const ctx = canvas.getContext('2d')!
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
   ctx.fillStyle = '#08111e'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.font = '700 54px Arial'
-  ctx.fillText(unitId, 256, 86)
+  ctx.font = '900 72px Arial'
+  ctx.fillText(unitId, canvas.width / 2, 190)
   ctx.fillStyle = '#243245'
-  ctx.font = '700 30px Arial'
-  ctx.fillText(name.slice(0, 28), 256, 160)
+  ctx.font = '700 46px Arial'
+  ctx.fillText(name.slice(0, 28), canvas.width / 2, 300)
 
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
   return texture
+}
+
+function addNameplate(group: THREE.Group, info: PanelInfo, targetWidth: number, targetHeight: number, targetDepth: number) {
+  const cx = 0
+  const cy = targetHeight / 2
+  const fz = targetDepth / 2 + 0.002
+
+  const shadow = new THREE.Mesh(
+    new THREE.PlaneGeometry(targetWidth * 0.742, targetHeight * 0.254),
+    new THREE.MeshStandardMaterial({ color: 0x05080d, roughness: 1, metalness: 0, transparent: true, opacity: 0.4 }),
+  )
+  shadow.position.set(cx, cy + targetHeight * 0.327, fz + 0.002)
+  group.add(shadow)
+
+  const frame = new THREE.Mesh(
+    new THREE.PlaneGeometry(targetWidth * 0.726, targetHeight * 0.245),
+    new THREE.MeshStandardMaterial({ color: 0x1b2434, roughness: 0.2, metalness: 1.0, envMapIntensity: 1.6 }),
+  )
+  frame.position.set(cx, cy + targetHeight * 0.33, fz + 0.003)
+  group.add(frame)
+
+  const plate = new THREE.Mesh(
+    new THREE.PlaneGeometry(targetWidth * 0.7, targetHeight * 0.218),
+    new THREE.MeshStandardMaterial({ color: 0xc2ccd5, roughness: 0.14, metalness: 0.78, envMapIntensity: 3.0 }),
+  )
+  plate.position.set(cx, cy + targetHeight * 0.33, fz + 0.004)
+  group.add(plate)
+
+  const text = new THREE.Mesh(
+    new THREE.PlaneGeometry(targetWidth * 0.68, targetHeight * 0.2),
+    new THREE.MeshBasicMaterial({ map: createTextTexture(info.unitId, info.name), transparent: true }),
+  )
+  text.position.set(cx, cy + targetHeight * 0.33, fz + 0.006)
+  group.add(text)
 }
 
 function addPanel(placement: Placement) {
@@ -312,7 +446,7 @@ function addPanel(placement: Placement) {
   group.add(model)
 
   const overlayMat = new THREE.MeshBasicMaterial({
-    color: 0xef4444,
+    color: 0xdd1111,
     transparent: true,
     opacity: 0,
     depthWrite: false,
@@ -324,16 +458,7 @@ function addPanel(placement: Placement) {
   group.add(overlay)
   overlayMaterials.push({ panelId: placement.panelId, material: overlayMat })
 
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.4, targetHeight * 0.22),
-    new THREE.MeshStandardMaterial({
-      map: createLabelTexture(info.unitId, info.name),
-      roughness: 0.18,
-      metalness: 0.25,
-    }),
-  )
-  label.position.set(0, targetHeight * 0.83, targetDepth / 2 + 0.02)
-  group.add(label)
+  addNameplate(group, info, targetWidth, targetHeight, targetDepth)
 
   scene.add(group)
 }
@@ -378,11 +503,11 @@ function addFallbackRoom() {
 }
 
 function clearArrows() {
-  arrowObjects.forEach((arrow) => scene.remove(arrow))
+  arrowObjects.forEach((arrow) => scene.remove(arrow.group))
   arrowObjects.length = 0
 }
 
-function createArrow(position: [number, number, number], targetPos: [number, number, number]) {
+function createArrow(position: [number, number, number], targetPos: [number, number, number], index: number): ArrowInstance {
   const shape = new THREE.Shape()
   shape.moveTo(0, 0.3)
   shape.lineTo(0.2, -0.1)
@@ -393,17 +518,15 @@ function createArrow(position: [number, number, number], targetPos: [number, num
   shape.lineTo(-0.2, -0.1)
   shape.closePath()
 
-  const mesh = new THREE.Mesh(
-    new THREE.ShapeGeometry(shape),
-    new THREE.MeshBasicMaterial({ color: 0xff3333, transparent: true, opacity: 0.8, side: THREE.DoubleSide, depthWrite: false }),
-  )
+  const material = new THREE.MeshBasicMaterial({ color: 0xff3333, transparent: true, opacity: 0.8, side: THREE.DoubleSide, depthWrite: false })
+  const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), material)
   mesh.rotation.x = Math.PI / 2
 
   const group = new THREE.Group()
   group.position.set(...position)
   group.lookAt(...targetPos)
   group.add(mesh)
-  return group
+  return { group, material, index }
 }
 
 function computeArrows(startPos: THREE.Vector3, panelPos: [number, number, number]): Arrow[] {
@@ -434,10 +557,10 @@ function computeArrows(startPos: THREE.Vector3, panelPos: [number, number, numbe
 
 function showArrows(arrows: Arrow[]) {
   clearArrows()
-  arrows.forEach((arrow) => {
-    const item = createArrow(arrow.position, arrow.target)
+  arrows.forEach((arrow, index) => {
+    const item = createArrow(arrow.position, arrow.target, index)
     arrowObjects.push(item)
-    scene.add(item)
+    scene.add(item.group)
   })
 }
 
@@ -484,7 +607,10 @@ function updateCamera(delta: number) {
 function updateOverlay(elapsed: number) {
   const active = new Set(blinkingIds.value)
   overlayMaterials.forEach(({ panelId, material }) => {
-    material.opacity = active.has(panelId) ? 0.22 + 0.18 * Math.sin(elapsed * 5) : 0
+    material.opacity = active.has(panelId) && Math.floor(elapsed * 6) % 2 === 0 ? 0.55 : 0
+  })
+  arrowObjects.forEach((arrow) => {
+    arrow.material.opacity = 0.2 + 0.8 * Math.max(0, Math.sin(elapsed * 8 - arrow.index * 0.5))
   })
 }
 
@@ -604,7 +730,7 @@ async function runSequence() {
     if (cancelled) return
     clearArrows()
     await wait(2000)
-    await tweenCamera(new THREE.Vector3(-6, 3.6, 0), new THREE.Vector3(40, 2.8, 0), 3.5)
+    await tweenCamera(new THREE.Vector3(-6, 4.0, 0), new THREE.Vector3(40, 2.8, 0), 3.5)
     if (cancelled) return
   }
 
@@ -697,26 +823,4 @@ watch([() => props.sequenceId, activePanelKey], () => {
   letter-spacing: 0.16em;
 }
 
-.info-panel {
-  position: absolute;
-  bottom: 1.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 10;
-  pointer-events: none;
-}
-
-.status {
-  color: #94a3b8;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
-
-.coords {
-  color: #64748b;
-  font-family: monospace;
-  font-size: 0.75rem;
-}
 </style>

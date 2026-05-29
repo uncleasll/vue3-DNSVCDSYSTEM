@@ -41,11 +41,11 @@ const items = computed(() => {
   <section class="min-h-0 overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
     <!-- Header section with title and action button -->
     <div class="mb-2 flex items-center justify-between">
-      <h2 class="text-sm font-semibold">RECENT ACTIVITY</h2>
+      <h2 class="text-[10px] font-semibold">RECENT ACTIVITY</h2>
       <button 
         type="button" 
         @click="$emit('viewAll')" 
-        class="text-xs font-semibold text-blue-600 hover:underline"
+       class="text-[10px] font-semibold text-blue-600 hover:underline"
       >
         view all -&gt;
       </button>
@@ -56,7 +56,7 @@ const items = computed(() => {
       <div 
         v-for="item in items" 
         :key="`${item.unitId}-${item.timestamp}`" 
-        class="grid grid-cols-[68px_minmax(76px,1fr)_104px] items-center gap-2 text-[12px]"
+        class="grid grid-cols-[52px_minmax(0,1fr)_80px] items-center gap-1 text-[10px]"
       >
         <!-- Format timestamp based on the presence of 'T' character -->
         <span class="text-slate-500">

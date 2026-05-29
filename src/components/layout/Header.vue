@@ -27,11 +27,11 @@
 
     <div class="flex flex-col justify-center gap-1 rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
       <div class="flex items-center justify-between gap-2 text-[11px] font-bold">
-        <span class="flex items-center gap-1.5"><Zap class="h-3.5 w-3.5 text-blue-600" />GEN 연동</span>
+        <span class="flex items-center gap-1.5"><Zap class="h-3.5 w-3.5 text-blue-600" />GENi연동</span>
         <span class="text-emerald-600">ON</span>
       </div>
       <div class="flex items-center justify-between gap-2 text-[11px] font-bold">
-        <span class="flex items-center gap-1.5"><Bell class="h-3.5 w-3.5 text-blue-600" />기본전환 연동</span>
+        <span class="flex items-center gap-1.5"><Bell class="h-3.5 w-3.5 text-blue-600" />키보관함 연동</span>
         <span class="text-emerald-600">ON</span>
       </div>
     </div>

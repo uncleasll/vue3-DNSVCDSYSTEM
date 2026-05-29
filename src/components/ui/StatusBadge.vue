@@ -1,7 +1,7 @@
 <template>
   <span 
     :class="[
-      'inline-flex items-center whitespace-nowrap rounded-md px-2.5 py-1 text-[11px] font-bold',
+      'inline-flex items-center whitespace-nowrap rounded-md px-1.5 py-0.5 text-[9px] font-bold',
       badgeClass,
       { 'alert-blink': blink }
     ]"

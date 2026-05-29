@@ -147,14 +147,14 @@ function getPlacements(): Placement[] {
 
 function setupScene() {
   scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x0a0a0a)
+  scene.background = new THREE.Color(0x1e3a8a)
 
   camera = new THREE.PerspectiveCamera(22, 1, 0.1, 1000)
   camera.position.set(-6, 3.6, 0)
   camera.lookAt(target)
 
   renderer = new THREE.WebGLRenderer({ canvas: canvasRef.value!, antialias: true })
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3))
   renderer.shadowMap.enabled = true
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -237,7 +237,7 @@ function addRoom() {
     scene.add(ceiling)
   }
 
-  const wallMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9, metalness: 0.1 })
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.9, metalness: 0.1 })
   const walls = [
     { position: [10, 3, -5.2], rotation: [0, 0, 0], size: [50, 6] },
     { position: [10, 3, 5.2], rotation: [0, Math.PI, 0], size: [50, 6] },
@@ -270,8 +270,8 @@ function addRoom() {
 
 function createLabelTexture(unitId: string, name: string) {
   const canvas = document.createElement('canvas')
-  canvas.width = 512
-  canvas.height = 256
+  canvas.width = 2048
+  canvas.height = 1024
   const ctx = canvas.getContext('2d')!
   ctx.fillStyle = '#c2ccd5'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -665,14 +665,14 @@ watch([() => props.sequenceId, activePanelKey], () => {
   min-height: 0;
   position: relative;
   overflow: hidden;
-  background: #0a0a0a;
+  background: #1e3a8a;
 }
 
 .canvas-3d {
   display: block;
   width: 100%;
   height: 100%;
-  background: #0a0a0a;
+  background: #1e3a8a;
 }
 
 .spinner-overlay {

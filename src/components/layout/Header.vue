@@ -1,5 +1,5 @@
 <template>
-  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[minmax(320px,1fr)_132px_164px] items-stretch gap-3']">
+  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[minmax(320px,1fr)_132px_220px] items-stretch gap-3']">
     
     <div class="flex min-w-0 flex-col items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-center shadow-sm">
       <div class="text-[10px] font-black uppercase tracking-wide text-blue-600">YEONGDONG POWER PLANT UNIT 1</div>
@@ -25,14 +25,27 @@
       </div>
     </div>
 
-    <div v-if="showConnectionStatus" class="flex flex-col justify-center gap-1 rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
-      <div class="flex items-center justify-between gap-2 text-[11px] font-bold">
-        <span class="flex items-center gap-1.5"><Zap class="h-3.5 w-3.5 text-blue-600" />GENi연동</span>
-        <span class="text-emerald-600">ON</span>
+    <div v-if="showConnectionStatus" class="grid min-h-0 grid-rows-[16px_minmax(0,1fr)] rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
+      <div class="flex items-center text-[10px] font-black uppercase tracking-wide text-slate-600">
+        통신정보
       </div>
-      <div class="flex items-center justify-between gap-2 text-[11px] font-bold">
-        <span class="flex items-center gap-1.5"><Bell class="h-3.5 w-3.5 text-blue-600" />키보관함 연동</span>
-        <span class="text-emerald-600">ON</span>
+      <div class="grid min-h-0 grid-cols-2 gap-x-3 gap-y-1">
+        <div class="flex min-w-0 items-center justify-between gap-1.5 text-[10px] font-bold leading-none">
+          <span class="flex min-w-0 items-center gap-1 truncate"><Zap class="h-3 w-3 shrink-0 text-blue-600" />GENi 연동</span>
+          <span class="shrink-0 text-emerald-600">ON</span>
+        </div>
+        <div class="flex min-w-0 items-center justify-between gap-1.5 text-[10px] font-bold leading-none">
+          <span class="flex min-w-0 items-center gap-1 truncate"><Bell class="h-3 w-3 shrink-0 text-blue-600" />키보관함 연동</span>
+          <span class="shrink-0 text-emerald-600">ON</span>
+        </div>
+        <div class="flex min-w-0 items-center justify-between gap-1.5 text-[10px] font-bold leading-none">
+          <span class="flex min-w-0 items-center gap-1 truncate"><Bell class="h-3 w-3 shrink-0 text-red-500" />알람</span>
+          <span class="shrink-0 text-emerald-600">없음</span>
+        </div>
+        <div class="flex min-w-0 items-center justify-between gap-1.5 text-[10px] font-bold leading-none">
+          <span class="flex min-w-0 items-center gap-1 truncate"><Server class="h-3 w-3 shrink-0 text-blue-600" />패널</span>
+          <span class="shrink-0 text-blue-600">47</span>
+        </div>
       </div>
     </div>
 
@@ -41,7 +54,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { Bell, Calendar, Clock, Zap } from 'lucide-vue-next'
+import { Bell, Calendar, Clock, Server, Zap } from 'lucide-vue-next'
 
 // Micro-compiler configuration setting defaults directly onto properties definitions
 const props = withDefaults(

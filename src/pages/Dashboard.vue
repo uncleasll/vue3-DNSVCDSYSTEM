@@ -2,7 +2,7 @@
   <div class="grid h-[calc(100vh-32px)] min-h-0 grid-cols-[minmax(320px,360px)_minmax(0,1fr)_200px] grid-rows-[82px_minmax(0,1fr)] gap-3 overflow-hidden">
     
     <div class="row-span-2 min-h-0">
-      <FloorPlan :targetPanelIds="viewerPanelIds" />
+      <FloorPlan :target-panel-ids="viewerPanelIds" :camera-position="cameraPosition" />
     </div>
     
     <div class="col-span-2 min-w-0">
@@ -15,7 +15,8 @@
         :alertPanels="activePanels"
         :sequenceId="sequenceId"
         :isOperationActive="isOperationActive"
-        @sequenceDone="handleSequenceDone"
+        @camera-update="handleCameraUpdate"
+        @sequence-done="handleSequenceDone"
       />
       
       <div class="invisible grid min-h-0 min-w-0 grid-cols-[160px_minmax(0,1fr)] gap-3">
@@ -114,6 +115,7 @@ import type { Operation } from '../types'
 
 // Typing Constraints defining available layout dialog variants
 type ModalType = 'register' | 'success' | 'start' | 'complete' | 'history' | 'activity' | null
+type CameraPosition = { x: number; z: number; rotation: number }
 
 // String match evaluator tracking Korean charset variance statuses from original React node
 const isProgress = (status: string) => status === '진행중' || status === 'м§„н–‰м¤‘'
@@ -125,6 +127,7 @@ const sequencePanelIds = ref<number[]>([])
 const sequenceId = ref(0)
 const activePanels = ref<ActivePanel[]>([])
 const isOperationActive = ref(false)
+const cameraPosition = ref<CameraPosition>({ x: -6, z: 0, rotation: 0 })
 
 // Tracking buffers preventing redundant view mutations on repetitive incoming network data frames
 const lastActivePanelsSerialized = ref('[]')
@@ -213,6 +216,10 @@ const finishOperations = async (selectedOperations: Operation[]) => {
 // Clears cached tracking segments cleanly upon visual loop sequence completion
 const handleSequenceDone = () => {
   sequencePanelIds.value = []
+}
+
+const handleCameraUpdate = (position: CameraPosition) => {
+  cameraPosition.value = position
 }
 
 // Computed Reactive Projection Filters

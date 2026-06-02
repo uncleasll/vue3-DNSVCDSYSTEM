@@ -2,7 +2,7 @@
   <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[minmax(320px,1fr)_132px_220px] items-stretch gap-3']">
     
     <div class="flex min-w-0 flex-col items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-center shadow-sm">
-      <div class="text-[20px] font-black uppercase tracking-wide text-blue-600">YEONGDONG POWER PLANT UNIT 1</div>
+      <div class="text-[15px] font-black uppercase tracking-wide text-blue-600">YEONGDONG POWER PLANT UNIT 1</div>
       <div class="mt-1 flex min-w-0 items-center justify-center gap-3">
         <h1 class="truncate text-base font-black text-slate-950">{{ section ?? title }}</h1>
         <span class="shrink-0 rounded-full border border-emerald-300 px-2.5 py-0.5 text-[10px] font-bold lowercase text-emerald-600">normal</span>

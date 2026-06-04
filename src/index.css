@@ -21,6 +21,37 @@ body,
   width: 100%;
 }
 
+@media (min-width: 1921px) {
+  :root {
+    --kiosk-font-scale: clamp(1, calc(100vw / 1920), 2);
+    font-size: calc(16px * var(--kiosk-font-scale));
+  }
+
+  .text-\[7px\] {
+    font-size: calc(7px * var(--kiosk-font-scale));
+  }
+
+  .text-\[8px\] {
+    font-size: calc(8px * var(--kiosk-font-scale));
+  }
+
+  .text-\[9px\] {
+    font-size: calc(9px * var(--kiosk-font-scale));
+  }
+
+  .text-\[10px\] {
+    font-size: calc(10px * var(--kiosk-font-scale));
+  }
+
+  .text-\[11px\] {
+    font-size: calc(11px * var(--kiosk-font-scale));
+  }
+
+  .text-\[15px\] {
+    font-size: calc(15px * var(--kiosk-font-scale));
+  }
+}
+
 button,
 input,
 select,

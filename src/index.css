@@ -20,22 +20,7 @@ body,
 #root {
   height: 100%;
   width: 100%;
-}
-
-@media (min-width: 3000px) and (min-height: 1600px) {
-  :root {
-    --kiosk-scale: clamp(1, min(calc(100vw / 1920), calc(100vh / 1080)), 2);
-  }
-
-  body {
-    min-width: 0;
-  }
-
-  #root {
-    height: calc(100vh / var(--kiosk-scale));
-    width: calc(100vw / var(--kiosk-scale));
-    zoom: var(--kiosk-scale);
-  }
+  overflow: hidden;
 }
 
 button,

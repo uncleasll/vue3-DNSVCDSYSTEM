@@ -1,38 +1,38 @@
 <template>
-  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[clamp(170px,9vw,340px)_minmax(320px,1fr)_clamp(360px,18.5vw,680px)_clamp(180px,9.5vw,360px)] items-stretch gap-3']">
-    <div class="flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
-      <img src="/koen_logo.png" alt="KOEN" class="max-h-[70%] w-full object-contain" />
+  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[clamp(160px,8.5vw,320px)_minmax(320px,1fr)_clamp(400px,20vw,720px)_clamp(180px,9.5vw,360px)] items-stretch gap-3']">
+    <div class="flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 shadow-sm">
+      <img src="/koen_logo.png" alt="KOEN" class="max-h-[62%] w-full object-contain" />
     </div>
 
-    <div class="flex min-w-0 flex-col items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-center shadow-sm">
-      <div class="text-[15px] font-black uppercase tracking-wide text-blue-600">YEONGDONG POWER PLANT UNIT 1</div>
-      <div class="mt-1 flex min-w-0 items-center justify-center gap-3">
-        <h1 class="truncate text-base font-black text-slate-950">{{ title }}</h1>
-        <span class="shrink-0 rounded-full border border-emerald-300 px-2.5 py-0.5 text-[10px] font-bold lowercase text-emerald-600">normal</span>
+    <div class="flex min-w-0 flex-col justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 shadow-sm">
+      <div class="text-[13px] font-black uppercase text-blue-600">YEONGDONG POWER PLANT UNIT 1</div>
+      <div class="mt-1 flex min-w-0 items-center gap-3">
+        <h1 class="min-w-0 flex-1 truncate text-base font-black text-slate-950">{{ title }}</h1>
+        <span class="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-emerald-600">normal</span>
       </div>
       <div v-if="section" class="mt-1 text-[11px] font-black uppercase tracking-wide text-slate-500">{{ section }}</div>
     </div>
 
-    <div v-if="showConnectionStatus" class="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
-      <div class="grid h-full grid-cols-[repeat(3,max-content)] content-center justify-center gap-x-3 gap-y-1">
+    <div v-if="showConnectionStatus" class="rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm">
+      <div class="grid h-full grid-cols-[repeat(3,minmax(0,1fr))] content-center gap-1.5">
         <div
           v-for="item in connectionIndicators"
           :key="item.key"
-          class="flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full bg-slate-50 px-2.5 text-[10px] font-black uppercase leading-none text-slate-700 ring-1 ring-slate-200"
+          class="flex h-7 min-w-0 items-center gap-2 rounded-md bg-slate-50 px-2.5 text-[10px] font-black uppercase leading-none text-slate-700 ring-1 ring-slate-200"
           :title="item.message"
         >
-          <span :class="['h-2 w-2 shrink-0 rounded-full shadow-sm', item.ok ? 'bg-emerald-500 shadow-emerald-200' : 'bg-red-500 shadow-red-200']"></span>
-          <span>{{ item.label }}</span>
+          <span :class="['h-2.5 w-2.5 shrink-0 rounded-full shadow-sm', item.ok ? 'bg-emerald-500 shadow-emerald-200' : 'bg-red-500 shadow-red-200']"></span>
+          <span class="min-w-0 truncate">{{ item.label }}</span>
         </div>
       </div>
     </div>
 
-    <div class="flex flex-col justify-center rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
-      <div class="flex items-center gap-2 text-sm font-bold text-slate-800">
+    <div class="flex flex-col justify-center rounded-lg border border-slate-200 bg-white px-4 text-right shadow-sm">
+      <div class="flex items-center justify-end gap-2 text-sm font-black text-slate-900">
         <Clock class="h-4 w-4 text-blue-600" />
         {{ time }}
       </div>
-      <div class="mt-1 flex items-center gap-2 text-[11px] font-semibold text-slate-500">
+      <div class="mt-1 flex items-center justify-end gap-2 text-[11px] font-bold text-slate-500">
         <Calendar class="h-3.5 w-3.5 text-blue-600" />
         {{ dateStr }}
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[clamp(160px,8.5vw,320px)_minmax(320px,1fr)_clamp(400px,20vw,720px)_clamp(180px,9.5vw,360px)] items-stretch gap-3']">
+  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[clamp(160px,8.5vw,320px)_minmax(320px,1fr)_clamp(400px,20vw,720px)_clamp(180px,9.5vw,360px)] min-[3000px]:grid-cols-[clamp(160px,8.5vw,320px)_minmax(320px,1fr)_clamp(400px,20vw,720px)_clamp(230px,11vw,420px)] items-stretch gap-3']">
     <div class="flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 shadow-sm">
       <img src="/koen_logo.png" alt="KOEN" class="max-h-[62%] w-full object-contain" />
     </div>
@@ -27,14 +27,14 @@
       </div>
     </div>
 
-    <div class="flex flex-col justify-center rounded-lg border border-slate-200 bg-white px-4 text-right shadow-sm">
-      <div class="flex items-center justify-end gap-2 text-sm font-black text-slate-900">
-        <Clock class="h-4 w-4 text-blue-600" />
-        {{ time }}
+    <div class="flex min-w-0 flex-col justify-center overflow-hidden rounded-lg border border-slate-200 bg-white px-4 text-left shadow-sm">
+      <div class="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap text-sm font-black tabular-nums text-slate-900">
+        <Clock class="h-4 w-4 shrink-0 text-blue-600" />
+        <span class="shrink-0">{{ time }}</span>
       </div>
-      <div class="mt-1 flex items-center justify-end gap-2 text-[11px] font-bold text-slate-500">
-        <Calendar class="h-3.5 w-3.5 text-blue-600" />
-        {{ dateStr }}
+      <div class="mt-1 flex min-w-0 items-center justify-start gap-2 whitespace-nowrap text-[11px] font-bold tabular-nums text-slate-500">
+        <Calendar class="h-3.5 w-3.5 shrink-0 text-blue-600" />
+        <span class="shrink-0">{{ dateStr }}</span>
       </div>
     </div>
   </header>

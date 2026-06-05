@@ -1,17 +1,30 @@
 <template>
-  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[minmax(320px,1fr)_132px_220px] items-stretch gap-3']">
-    
+  <header :class="[flush ? 'h-full' : 'mb-3', 'grid grid-cols-[clamp(170px,9vw,340px)_minmax(320px,1fr)_clamp(360px,18.5vw,680px)_clamp(180px,9.5vw,360px)] items-stretch gap-3']">
+    <div class="flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
+      <img src="/koen_logo.png" alt="KOEN" class="max-h-[70%] w-full object-contain" />
+    </div>
+
     <div class="flex min-w-0 flex-col items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-center shadow-sm">
       <div class="text-[15px] font-black uppercase tracking-wide text-blue-600">YEONGDONG POWER PLANT UNIT 1</div>
       <div class="mt-1 flex min-w-0 items-center justify-center gap-3">
-        <h1 class="truncate text-base font-black text-slate-950">{{ section ?? title }}</h1>
+        <h1 class="truncate text-base font-black text-slate-950">{{ title }}</h1>
         <span class="shrink-0 rounded-full border border-emerald-300 px-2.5 py-0.5 text-[10px] font-bold lowercase text-emerald-600">normal</span>
       </div>
+      <div v-if="section" class="mt-1 text-[11px] font-black uppercase tracking-wide text-slate-500">{{ section }}</div>
     </div>
 
-    <div v-if="alarmCount !== undefined" class="flex items-center justify-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 text-sm font-black text-red-600 shadow-sm animate-pulse">
-      <Bell class="h-5 w-5" /> 
-      ALARM {{ alarmCount }}
+    <div v-if="showConnectionStatus" class="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
+      <div class="grid h-full grid-cols-[repeat(3,max-content)] content-center justify-center gap-x-3 gap-y-1">
+        <div
+          v-for="item in connectionIndicators"
+          :key="item.key"
+          class="flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full bg-slate-50 px-2.5 text-[10px] font-black uppercase leading-none text-slate-700 ring-1 ring-slate-200"
+          :title="item.message"
+        >
+          <span :class="['h-2 w-2 shrink-0 rounded-full shadow-sm', item.ok ? 'bg-emerald-500 shadow-emerald-200' : 'bg-red-500 shadow-red-200']"></span>
+          <span>{{ item.label }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="flex flex-col justify-center rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
@@ -24,37 +37,12 @@
         {{ dateStr }}
       </div>
     </div>
-
-    <div v-if="showConnectionStatus" class="grid min-h-0 grid-rows-[16px_minmax(0,1fr)] rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
-      <div class="flex items-center text-[10px] font-black uppercase tracking-wide text-slate-600">
-        통신정보
-      </div>
-      <div class="grid min-h-0 grid-cols-2 gap-x-3 gap-y-1">
-        <div class="flex min-w-0 items-center justify-between gap-1.5 text-[10px] font-bold leading-none">
-          <span class="flex min-w-0 items-center gap-1 truncate"><Zap class="h-3 w-3 shrink-0 text-blue-600" />GENi 연동</span>
-          <span class="shrink-0 text-emerald-600">ON</span>
-        </div>
-        <div class="flex min-w-0 items-center justify-between gap-1.5 text-[10px] font-bold leading-none">
-          <span class="flex min-w-0 items-center gap-1 truncate"><Bell class="h-3 w-3 shrink-0 text-blue-600" />키보관함 연동</span>
-          <span class="shrink-0 text-emerald-600">ON</span>
-        </div>
-        <div class="flex min-w-0 items-center justify-between gap-1.5 text-[10px] font-bold leading-none">
-          <span class="flex min-w-0 items-center gap-1 truncate"><Bell class="h-3 w-3 shrink-0 text-red-500" />알람</span>
-          <span class="shrink-0 text-emerald-600">없음</span>
-        </div>
-        <div class="flex min-w-0 items-center justify-between gap-1.5 text-[10px] font-bold leading-none">
-          <span class="flex min-w-0 items-center gap-1 truncate"><Server class="h-3 w-3 shrink-0 text-blue-600" />패널</span>
-          <span class="shrink-0 text-blue-600">47</span>
-        </div>
-      </div>
-    </div>
-
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Bell, Calendar, Clock, Server, Zap } from 'lucide-vue-next'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { Calendar, Clock } from 'lucide-vue-next'
 
 // Micro-compiler configuration setting defaults directly onto properties definitions
 const props = withDefaults(
@@ -75,8 +63,19 @@ const props = withDefaults(
 // React state variables replacement layers
 const time = ref('13:30:59')
 const dateStr = ref('2026.05.28')
+type ConnectionStatusKey = 'geni' | 'server' | 'keyCabinet' | 'signBoard' | 'led'
+type ConnectionStatus = Record<ConnectionStatusKey, { ok: boolean; message: string }>
+
+const connectionStatus = ref<ConnectionStatus>({
+  geni: { ok: true, message: 'GENi connected' },
+  server: { ok: true, message: 'Local DB connected' },
+  keyCabinet: { ok: true, message: 'Key cabinet connected' },
+  signBoard: { ok: true, message: 'Sign board connected' },
+  led: { ok: true, message: 'LED connected' },
+})
 
 let timer: ReturnType<typeof setInterval> | undefined
+let connectionTimer: ReturnType<typeof setInterval> | undefined
 
 // Internal formatting scheduler pipe
 const updateDateTime = () => {
@@ -97,12 +96,43 @@ const updateDateTime = () => {
   dateStr.value = `${year}.${month}.${day}`
 }
 
+const connectionIndicators = computed(() => [
+  { key: 'geni', label: 'GENi', ...connectionStatus.value.geni },
+  { key: 'server', label: 'SERVER', ...connectionStatus.value.server },
+  { key: 'keyCabinet', label: 'KEY CABINET', ...connectionStatus.value.keyCabinet },
+  { key: 'signBoard', label: 'SIGN BOARD', ...connectionStatus.value.signBoard },
+  { key: 'led', label: 'LED', ...connectionStatus.value.led },
+])
+
+const fetchConnectionStatus = async () => {
+  try {
+    const response = await fetch('/api/connection-status')
+    if (!response.ok) throw new Error('Connection status endpoint failed')
+    const data = await response.json()
+    connectionStatus.value = {
+      ...connectionStatus.value,
+      ...data.status,
+    }
+  } catch {
+    connectionStatus.value = {
+      geni: { ok: false, message: 'GENi status unavailable' },
+      server: { ok: false, message: 'Local DB status unavailable' },
+      keyCabinet: { ok: false, message: 'Key cabinet status unavailable' },
+      signBoard: { ok: false, message: 'Sign board status unavailable' },
+      led: { ok: false, message: 'LED status unavailable' },
+    }
+  }
+}
+
 onMounted(() => {
   updateDateTime() // Executed instantly to prevent display layout jumps on hydration
   timer = setInterval(updateDateTime, 1000)
+  void fetchConnectionStatus()
+  connectionTimer = setInterval(fetchConnectionStatus, 5000)
 })
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
+  if (connectionTimer) clearInterval(connectionTimer)
 })
 </script>

@@ -60,7 +60,7 @@ const settingsList = ref([
   { icon: shallowRef(Database), title: 'Demo data sync', desc: 'Use local MVP data until HW API is connected', enabled: true },
 ])
 
-// Sidebar raw checklist array mapped precisely to the original structure 
+// Local readiness checklist array mapped precisely to the original structure
 const readinessItems = [
   'Dashboard connected', 
   'Unit overview connected', 

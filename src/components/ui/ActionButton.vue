@@ -2,13 +2,13 @@
   <button
     type="button"
     :class="[
-      'flex h-full min-h-12 w-full items-center justify-center gap-2 rounded-xl border text-sm font-bold shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]',
+      'flex h-full min-h-[clamp(48px,2.7vw,104px)] w-full items-center justify-center gap-[clamp(8px,0.5vw,18px)] rounded-lg border text-sm font-bold shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]',
       variantClasses[variant],
     ]"
     :style="variantStyles[variant]"
     @click="emit('click')"
   >
-    <component :is="icon" class="h-5 w-5" />
+    <component :is="icon" class="h-[clamp(20px,1.2vw,44px)] w-[clamp(20px,1.2vw,44px)]" />
     <span>{{ label }}</span>
   </button>
 </template>

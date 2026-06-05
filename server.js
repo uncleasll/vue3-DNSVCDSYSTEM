@@ -86,6 +86,19 @@ async function handleApi(req, res, url) {
     return true
   }
 
+  if (url.pathname === '/api/connection-status' && req.method === 'GET') {
+    sendJson(res, 200, {
+      status: {
+        geni: { ok: true, message: 'GENi system connected' },
+        server: { ok: true, message: 'Local database connected' },
+        keyCabinet: { ok: true, message: 'Key cabinet controller connected' },
+        signBoard: { ok: true, message: 'Electronic sign board connected' },
+        led: { ok: true, message: 'LED hardware connected' },
+      },
+    })
+    return true
+  }
+
   if (url.pathname === '/api/active-panels' && req.method === 'POST') {
     const body = await readBody(req)
     if (Array.isArray(body)) {

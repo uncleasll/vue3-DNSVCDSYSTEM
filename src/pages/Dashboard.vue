@@ -1,10 +1,9 @@
 <template>
-  <div class="grid h-[calc(100vh-32px)] min-h-0 grid-cols-[minmax(320px,360px)_minmax(0,1fr)_200px] grid-rows-[82px_minmax(0,1fr)] gap-3 overflow-hidden">
-    
+  <div class="grid h-[calc(100vh-32px)] min-h-0 grid-cols-[minmax(320px,360px)_minmax(0,1fr)_clamp(200px,10.5vw,400px)] grid-rows-[clamp(82px,4.3vw,164px)_minmax(0,1fr)] gap-3 overflow-hidden">
     <div class="row-span-2 min-h-0">
       <FloorPlan :target-panel-ids="viewerPanelIds" :camera-position="cameraPosition" />
     </div>
-    
+
     <div class="col-span-2 min-w-0">
       <Header flush />
     </div>
@@ -19,10 +18,10 @@
         @sequence-done="handleSequenceDone"
       />
       
-      <div class="invisible grid min-h-0 min-w-0 grid-cols-[160px_minmax(0,1fr)] gap-3">
-        <section class="min-h-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div class="invisible grid min-h-0 min-w-0 grid-cols-[clamp(180px,9.5vw,360px)_minmax(0,1fr)] gap-3">
+        <section class="min-h-0 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <div class="border-b border-slate-200 bg-slate-50 px-3 py-2">
-            <h2 class="text-[11px] font-black uppercase tracking-widest text-slate-600">통신정보</h2>
+            <h2 class="text-[11px] font-black uppercase text-slate-600">통신정보</h2>
           </div>
           <div class="grid gap-1.5 p-2.5">
             <div 
@@ -70,27 +69,26 @@
 
     <aside class="grid min-h-0 min-w-0 grid-rows-[minmax(120px,1fr)_52px_52px_52px_52px] gap-2 overflow-hidden">
       <StatusPanel :operations="activeOperations" />
-      <ActionButton :icon="PlusCircle" label="조작등록" variant="blue" @click="modal = 'register'" />
-      <ActionButton :icon="Play" label="조작시작" variant="dark" @click="modal = 'start'" />
-      <ActionButton :icon="CheckCircle" label="조작완료" variant="green" @click="modal = 'complete'" />
-      <ActionButton :icon="HistoryIcon" label="이력조회" variant="orange" @click="modal = 'history'" />
+      <ActionButton :icon="actionIcons.start" label="조작시작" variant="dark" @click="modal = 'start'" />
+      <ActionButton :icon="actionIcons.complete" label="조작완료" variant="green" @click="modal = 'complete'" />
+      <ActionButton :icon="actionIcons.manual" label="수동조작" variant="blue" @click="modal = 'manual'" />
+      <ActionButton :icon="actionIcons.history" label="이력조회" variant="orange" @click="modal = 'history'" />
     </aside>
   </div>
 
-  <RegisterModal v-if="modal === 'register'" @close="modal = null" @submit="submitRegister" />
-  <SuccessModal v-if="modal === 'success'" @close="modal = null" />
   <OperationModal v-if="modal === 'start'" mode="start" :operations="operations" @close="modal = null" @confirm="startOperations" />
   <OperationModal v-if="modal === 'complete'" mode="complete" :operations="operations" @close="modal = null" @confirm="finishOperations" />
+  <OperationModal v-if="modal === 'manual'" mode="manual" :operations="operations" @close="modal = null" @confirm="manualOperations" />
   <HistoryModal v-if="modal === 'history'" :operations="operations" @close="modal = null" />
   <HistoryModal v-if="modal === 'activity'" :operations="operations" @close="modal = null" />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, markRaw, onMounted, onUnmounted } from 'vue'
-import { Bell, CheckCircle, History as HistoryIcon, Play, PlusCircle, Radio, Server, ShieldCheck } from 'lucide-vue-next'
+import { Bell, CheckCircle, Hand as HandIcon, History as HistoryIcon, Play, Radio, Server, ShieldCheck } from 'lucide-vue-next'
 
 // API Network Core Hooks and Endpoint Interfaces
-import { clearActivePanels, completeOperations, fetchOperations, setActivePanels } from '../api/operations'
+import { clearActivePanels, completeOperations, fetchOperations, registerOperation, setActivePanels } from '../api/operations'
 import type { ActivePanel } from '../api/operations'
 
 // Structural Interface Components Mapping
@@ -106,15 +104,13 @@ import ActionButton from '../components/ui/ActionButton.vue'
 // Modular Overlays Dialog Registries 
 import HistoryModal from '../components/modals/HistoryModal.vue'
 import OperationModal from '../components/modals/OperationModal.vue'
-import RegisterModal from '../components/modals/RegisterModal.vue'
-import SuccessModal from '../components/modals/SuccessModal.vue'
 
 // Static Mock Telemetry Initialization Assets
 import { INITIAL_OPERATIONS } from '../data/operations'
 import type { Operation } from '../types'
 
 // Typing Constraints defining available layout dialog variants
-type ModalType = 'register' | 'success' | 'start' | 'complete' | 'history' | 'activity' | null
+type ModalType = 'start' | 'complete' | 'manual' | 'history' | 'activity' | null
 type CameraPosition = { x: number; z: number; rotation: number }
 
 // String match evaluator tracking Korean charset variance statuses from original React node
@@ -128,6 +124,12 @@ const sequenceId = ref(0)
 const activePanels = ref<ActivePanel[]>([])
 const isOperationActive = ref(false)
 const cameraPosition = ref<CameraPosition>({ x: -6, z: 0, rotation: 0 })
+const actionIcons = {
+  start: markRaw(Play),
+  complete: markRaw(CheckCircle),
+  manual: markRaw(HandIcon),
+  history: markRaw(HistoryIcon),
+}
 
 // Tracking buffers preventing redundant view mutations on repetitive incoming network data frames
 const lastActivePanelsSerialized = ref('[]')
@@ -179,18 +181,24 @@ onUnmounted(() => {
   }
 })
 
-// Submission pipelines routing buffered updates cleanly
-const submitRegister = async (_operations: Operation[]) => {
+// Dispatches panel configuration triggers payload matrix over interface endpoints
+const startOperations = async (selectedOperations: Operation[], worker: string, team: string) => {
+  await saveOperationRecords(selectedOperations, worker, team, 'GENi 연동 후 조작 시작')
+  await triggerHardware(selectedOperations, 'ON')
   await refreshOperations()
-  modal.value = 'success'
 }
 
-// Dispatches panel configuration triggers payload matrix over interface endpoints
-const startOperations = async (selectedOperations: Operation[]) => {
+const manualOperations = async (selectedOperations: Operation[], worker: string, team: string) => {
+  await saveOperationRecords(selectedOperations, worker, team, 'GENi 연결 장애 수동 조작')
+  await triggerHardware(selectedOperations, 'ON')
+  await refreshOperations()
+}
+
+const triggerHardware = async (selectedOperations: Operation[], status: 'ON' | 'OFF') => {
   const panelIds = selectedOperations.map((op) => op.panelId)
   const panels = selectedOperations.map((op) => ({
     id: op.panelId,
-    status: 'ON',
+    status,
     description: op.unitId,
   }))
 
@@ -199,12 +207,26 @@ const startOperations = async (selectedOperations: Operation[]) => {
   sequencePanelIds.value = panelIds
   activePanels.value = panels
   sequenceId.value += 1
-  isOperationActive.value = true
-  await refreshOperations()
+  isOperationActive.value = status === 'ON'
+}
+
+const saveOperationRecords = async (selectedOperations: Operation[], worker: string, team: string, notes: string) => {
+  await Promise.all(selectedOperations.map((op) => registerOperation({
+    panelId: op.panelId,
+    unitId: op.unitId,
+    equipName: op.equipName,
+    panelName: op.panelName ?? op.equipName,
+    opType: op.opType,
+    operator: worker,
+    department: team,
+    purpose: op.purpose || 'Red Tag operation',
+    notes,
+  })))
 }
 
 // Terminates active hardware signaling sequences clearing global processes
 const finishOperations = async (selectedOperations: Operation[]) => {
+  await triggerHardware(selectedOperations, 'OFF')
   await completeOperations(selectedOperations.map((op) => op.id))
   await clearActivePanels()
   lastActivePanelsSerialized.value = '[]'
